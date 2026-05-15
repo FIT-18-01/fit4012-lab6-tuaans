@@ -37,17 +37,19 @@ def get_plaintext() -> bytes:
 
 def send_packet(host: str, port: int, packet: bytes) -> None:
     """Open one TCP connection and send all bytes."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(TIMEOUT)
-        for attempt in range(5):
-            try:
+    backoff = 0.1
+    for attempt in range(5):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(TIMEOUT)
                 sock.connect((host, port))
-                break
-            except (ConnectionRefusedError, socket.timeout):
-                if attempt == 4:
-                    raise
-                time.sleep(0.1)
-        sock.sendall(packet)
+                sock.sendall(packet)
+            return
+        except (ConnectionRefusedError, ConnectionAbortedError, socket.timeout, OSError) as exc:
+            if attempt == 4:
+                raise
+            time.sleep(backoff)
+            backoff *= 2
 
 
 def main() -> None:
