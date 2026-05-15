@@ -1,6 +1,7 @@
 import os
 import socket
 import sys
+import time
 from pathlib import Path
 
 from aes_socket_utils import build_data_packet, build_key_packet, encrypt_aes_cbc
@@ -38,7 +39,14 @@ def send_packet(host: str, port: int, packet: bytes) -> None:
     """Open one TCP connection and send all bytes."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(TIMEOUT)
-        sock.connect((host, port))
+        for attempt in range(5):
+            try:
+                sock.connect((host, port))
+                break
+            except (ConnectionRefusedError, socket.timeout):
+                if attempt == 4:
+                    raise
+                time.sleep(0.1)
         sock.sendall(packet)
 
 
