@@ -1,5 +1,6 @@
 import os
 import socket
+import sys
 from pathlib import Path
 
 from aes_socket_utils import (
@@ -9,6 +10,16 @@ from aes_socket_utils import (
     parse_length_header,
     recv_exact,
 )
+
+
+def configure_utf8_output() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
+configure_utf8_output()
 
 HOST = os.getenv("RECEIVER_HOST", "0.0.0.0")
 DATA_PORT = int(os.getenv("DATA_PORT", "6000"))
@@ -55,18 +66,18 @@ def receive_data_packet() -> bytes:
 def main() -> None:
     lines = []
 
-    line = f"[*] Receiver đang lắng nghe kênh khóa tại {HOST}:{KEY_PORT}"
+    line = f"[*] Receiver dang lang nghe kenh khoa tai {HOST}:{KEY_PORT}"
     print(line)
     lines.append(line)
 
     key_packet = receive_key_packet()
     key, iv = parse_key_packet(key_packet)
 
-    line = "[+] Đã nhận AES key và IV."
+    line = "[+] Da nhan AES key va IV."
     print(line)
     lines.append(line)
 
-    line = f"[*] Receiver đang lắng nghe kênh dữ liệu tại {HOST}:{DATA_PORT}"
+    line = f"[*] Receiver dang lang nghe kenh du lieu tai {HOST}:{DATA_PORT}"
     print(line)
     lines.append(line)
 
@@ -77,7 +88,7 @@ def main() -> None:
     if len(ciphertext) != length:
         raise ValueError("Ciphertext nhận được không khớp length header.")
 
-    line = "[+] Đã nhận ciphertext."
+    line = "[+] Da nhan ciphertext."
     print(line)
     lines.append(line)
 
@@ -85,12 +96,12 @@ def main() -> None:
     message = plaintext.decode("utf-8", errors="replace")
 
     lines.extend([
-        "[+] Đã giải mã thành công.",
-        f"[+] Bản tin gốc: {message}",
+        "[+] Da giai ma thanh cong.",
+        f"[+] Ban tin goc: {message}",
     ])
 
-    print("[+] Đã giải mã thành công.")
-    print(f"[+] Bản tin gốc: {message}")
+    print("[+] Da giai ma thanh cong.")
+    print(f"[+] Ban tin goc: {message}")
 
     if OUTPUT_FILE:
         Path(OUTPUT_FILE).write_bytes(plaintext)

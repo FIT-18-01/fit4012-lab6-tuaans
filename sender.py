@@ -1,8 +1,19 @@
 import os
 import socket
+import sys
 from pathlib import Path
 
 from aes_socket_utils import build_data_packet, build_key_packet, encrypt_aes_cbc
+
+
+def configure_utf8_output() -> None:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
+configure_utf8_output()
 
 SERVER_IP = os.getenv("SERVER_IP", "127.0.0.1")
 DATA_PORT = int(os.getenv("DATA_PORT", "6000"))
@@ -42,9 +53,9 @@ def main() -> None:
     send_packet(SERVER_IP, DATA_PORT, data_packet)
 
     lines = [
-        "[+] Đã tạo AES key và IV.",
-        "[+] Đã gửi key/IV qua kênh khóa.",
-        "[+] Đã gửi ciphertext qua kênh dữ liệu.",
+        "[+] Da tao AES key va IV.",
+        "[+] Da gui key/IV qua kenh khoa.",
+        "[+] Da gui ciphertext qua kenh du lieu.",
         f"Server: {SERVER_IP}",
         f"Key port: {KEY_PORT}",
         f"Data port: {DATA_PORT}",

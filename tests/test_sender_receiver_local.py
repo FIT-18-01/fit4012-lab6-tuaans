@@ -58,7 +58,7 @@ def test_local_sender_receiver_roundtrip():
     )
 
     try:
-        first_output = wait_for_output(receiver, "kênh khóa")
+        first_output = wait_for_output(receiver, "kenh khoa")
 
         sender = subprocess.run(
             [sys.executable, "sender.py"],
@@ -73,12 +73,12 @@ def test_local_sender_receiver_roundtrip():
         receiver_out, _ = receiver.communicate(timeout=10)
         full_receiver_output = first_output + receiver_out
 
-        assert "[+] Đã gửi key/IV qua kênh khóa." in sender.stdout
-        assert "[+] Đã gửi ciphertext qua kênh dữ liệu." in sender.stdout
+        assert "[+] Da gui key/IV qua kenh khoa." in sender.stdout
+        assert "[+] Da gui ciphertext qua kenh du lieu." in sender.stdout
         assert "Key:" in sender.stdout
         assert "IV:" in sender.stdout
         assert "Ciphertext:" in sender.stdout
-        assert "[+] Bản tin gốc: Xin chao FIT4012 - local AES integration test" in full_receiver_output
+        assert "[+] Ban tin goc: Xin chao FIT4012 - local AES integration test" in full_receiver_output
 
     finally:
         if receiver.poll() is None:
